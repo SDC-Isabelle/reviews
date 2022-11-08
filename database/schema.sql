@@ -1,8 +1,8 @@
 -- Database: sdc
 
---DROP DATABASE IF EXISTS sdc;
+-- DROP DATABASE IF EXISTS sdc;
 
-CREATE DATABASE sdc2
+CREATE DATABASE sdc
     WITH
     OWNER = ludong
     ENCODING = 'UTF8'
@@ -16,91 +16,107 @@ CREATE DATABASE sdc2
 ----------REVIEWS TABLE------------------------------------------
 
  -- DROP TABLE IF EXISTS public.reviews;
-  CREATE TABLE IF NOT EXISTS public.reviews
-  (
-      review_id serial NOT NULL,
-      product_id integer NOT NULL,
-      rating integer NOT NULL,
-      date double precision NOT NULL,
-      summary text COLLATE pg_catalog."default",
-      body text COLLATE pg_catalog."default",
-      recommend boolean NOT NULL,
-      reported boolean NOT NULL,
-      reviewer_name text COLLATE pg_catalog."default",
-      reviewer_email text COLLATE pg_catalog."default",
-      response text COLLATE pg_catalog."default",
-      helpfulness integer,
-      CONSTRAINT reviews_pkey PRIMARY KEY (review_id)
-  )
+  -- Table: public.reviews
 
-  TABLESPACE pg_default;
+-- DROP TABLE IF EXISTS public.reviews;
 
-  ALTER TABLE IF EXISTS public.reviews
-      OWNER to ludong;
-  -- Index: reviews_product_id_index
+CREATE TABLE IF NOT EXISTS public.reviews
+(
+    review_id integer NOT NULL DEFAULT nextval('reviews_review_id_seq'::regclass),
+    product_id integer NOT NULL,
+    rating integer NOT NULL,
+    date double precision NOT NULL,
+    summary text COLLATE pg_catalog."default",
+    body text COLLATE pg_catalog."default",
+    recommend boolean NOT NULL,
+    reported boolean NOT NULL DEFAULT false,
+    reviewer_name text COLLATE pg_catalog."default" NOT NULL,
+    reviewer_email text COLLATE pg_catalog."default",
+    response text COLLATE pg_catalog."default",
+    helpfulness integer DEFAULT 0,
+    CONSTRAINT reviews_pkey PRIMARY KEY (review_id)
+)
 
-  -- DROP INDEX IF EXISTS public.reviews_product_id_index;
+TABLESPACE pg_default;
 
-  CREATE INDEX IF NOT EXISTS reviews_product_id_index
-      ON public.reviews USING btree
-      (product_id ASC NULLS LAST)
-      TABLESPACE pg_default;
+ALTER TABLE IF EXISTS public.reviews
+    OWNER to postgres;
+-- Index: reviews_product_id_index
+
+-- DROP INDEX IF EXISTS public.reviews_product_id_index;
+
+CREATE INDEX IF NOT EXISTS reviews_product_id_index
+    ON public.reviews USING btree
+    (product_id ASC NULLS LAST)
+    TABLESPACE pg_default;
 
 ----------REVIEWS PHOTOS TABLE----------------------------------------
-  DROP TABLE IF EXISTS public.reviews_photos;
-  CREATE TABLE IF NOT EXISTS public.reviews_photos
-  (
-    photo_id serial NOT NULL,
-    review_id integer NOT NULL references reviews(review_id),
-    url text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT reviews_photos_pkey PRIMARY KEY (photo_id)
-  )
+  -- Table: public.reviews_photos
 
-  TABLESPACE pg_default;
+-- DROP TABLE IF EXISTS public.reviews_photos;
 
-  ALTER TABLE IF EXISTS public.reviews_photos
-      OWNER to ludong;
+CREATE TABLE IF NOT EXISTS public.reviews_photos
+(
+    photo_id  integer NOT NULL DEFAULT nextval('reviews_photos_photo_id_seq'::regclass),
+    review_id integer NOT NULL,
+    url text COLLATE pg_catalog."default",
+    CONSTRAINT reviews_photos_pkey PRIMARY KEY (photo_id),
+    CONSTRAINT reviews_photos_to_reviews FOREIGN KEY (review_id)
+        REFERENCES public.reviews (review_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
 
-  --DROP INDEX IF EXISTS public.reviews_photos_review_id_index;
+TABLESPACE pg_default;
 
-  CREATE INDEX IF NOT EXISTS reviews_photos_review_id_index
-        ON public.reviews_photos USING btree
-        (review_id ASC NULLS LAST)
-  TABLESPACE pg_default;
+ALTER TABLE IF EXISTS public.reviews_photos
+    OWNER to postgres;
+-- Index: reviews_photos_review_id_index
+
+-- DROP INDEX IF EXISTS public.reviews_photos_review_id_index;
+
+CREATE INDEX IF NOT EXISTS reviews_photos_review_id_index
+    ON public.reviews_photos USING btree
+    (review_id ASC NULLS LAST)
+    TABLESPACE pg_default;
 
 ----------Characteristics TABLE-----------------------------------------
 
-  CREATE TABLE IF NOT EXISTS public.characteristics
-  (
-    id serial NOT NULL,
+  -- Table: public.characteristics
+
+-- DROP TABLE IF EXISTS public.characteristics;
+
+CREATE TABLE IF NOT EXISTS public.characteristics
+(
+    id integer NOT NULL DEFAULT nextval('characteristics_id_seq'::regclass),
     product_id integer NOT NULL,
     name text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT characteristics_pkey PRIMARY KEY (id)
-  )
+)
 
-  TABLESPACE pg_default;
+TABLESPACE pg_default;
 
-  ALTER TABLE IF EXISTS public.characteristics
-      OWNER to ludong;
-  -- Index: characteristics_productid_index
+ALTER TABLE IF EXISTS public.characteristics
+    OWNER to postgres;
+-- Index: characteristics_productid_index
 
-  --DROP INDEX IF EXISTS public.characteristics_productid_index;
+-- DROP INDEX IF EXISTS public.characteristics_productid_index;
 
-  CREATE INDEX IF NOT EXISTS characteristics_productid_index
-      ON public.characteristics USING btree
-      (product_id ASC NULLS LAST)
-
-  TABLESPACE pg_default;
+CREATE INDEX IF NOT EXISTS characteristics_productid_index
+    ON public.characteristics USING btree
+    (product_id ASC NULLS LAST)
+    TABLESPACE pg_default;
 
 ----------Characteristics TABLE------------------------------------------
 
-  -- Table: public.characteristic_reviews
+-- Table: public.characteristic_reviews
 
 -- DROP TABLE IF EXISTS public.characteristic_reviews;
 
 CREATE TABLE IF NOT EXISTS public.characteristic_reviews
 (
-    id serial NOT NULL,
+    id integer NOT NULL DEFAULT nextval('characteristic_reviews_id_seq'::regclass),
     characteristic_id integer NOT NULL,
     review_id integer NOT NULL,
     value integer NOT NULL,
@@ -121,13 +137,5 @@ CREATE INDEX IF NOT EXISTS characteristic_reviews_characteristic_id_index
     TABLESPACE pg_default;
 
 
--- copy public.reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
--- FROM '/Users/ludong/hackReactor/projects/sdc/data/reviews.csv' DELIMITER ','
--- CSV HEADER QUOTE '\"' ESCAPE '''';""
 
-copy public.reviews_photos (id, review_id, url)
-FROM '/Users/ludong/hackReactor/projects/sdc/data/reviews_photos.csv'
-DELIMITER ','
-CSV HEADER QUOTE '\"'
-ESCAPE '''';""
 
