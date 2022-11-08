@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const {getReviews} = require('../database/controllers.js');
+const {getReviews, getMeta, putHelpful, putReport, postReview} = require('../database/controllers.js');
 
 const app = express();
 
@@ -9,59 +9,79 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '..')));
 app.use(express.json());
 app.use((req, res, next) => {
-  console.log('RECEIVED ', req.method);
+  //console.log('RECEIVED ', req.method);
   next();
 });
 
 app.get('/reviews', (req, res) => {
-  console.log(req.query);
+  //console.log(req.query);
   const response = {
     "product": req.query.product_id,
     "page": parseInt(req.query.page) || 1,
     "count": parseInt(req.query.count) || 5
   };
+
   const product_id = parseInt(req.query.product_id);
 
   getReviews(product_id, response.page, response.count, response.sort)
   .then(data => {
     //console.log('DATA ', data);
     response.results = data;
-    response.results.forEach((element) => {
-      element['photos'] = element['json_agg'];
-      element['date'] = element['to_timestamp'];
-      delete element['json_agg'];
-      delete element['to_timestamp'];
-    })
-    console.log(response.results);
-    delete response.results['json_agg'];
+    //change data keys and values to match original api data
+    // response.results.forEach((element) => {
+    //   if (element['response'] === 'null'){
+    //     element['response'] = null;
+    //   }
+    // })
+   // console.log(response.results);
+    //delete response.results['json_agg'];
     res.status(200).send(response);
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    console.log(err)
+    res.send('FAILED');
+  })
 
 })
 
 app.get('/reviews/meta', (req, res) => {
-  console.log(req.query);
-  const productId = parseInt(req.query.product_id);
-  res.status(200).send('received');
+ // console.log(req.query);
+  getMeta(parseInt(req.query.product_id))
+  .then(data => {
+    console.log(data);
+    res.status(200).send(data[0].meta);
+  })
+
 })
 
 app.post('/reviews', (req, res) => {
-  console.log(req.body);
-  const productId = parseInt(req.body.product_id);
-  res.status(201).send('received');
+  if (!req.body.product_id || !req.body.rating || ! req.body.name || !req.body.characteristics) {
+    res.status(400).send('Missing product_id or rating or reviewer name or characteristics')
+  } else {
+    const review = req.body;
+    review.date = Date.now();
+    console.log(review);
+    postReview(review)
+    .then((db) => res.status(201).send(db))
+    .catch(err => console.log(err));
+  }
+
 })
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  const reviewId = req.params.review_id;
-  console.log(reviewId)
-  res.status(204).send('received');
+  putHelpful(req.params.review_id)
+  .then(() => {
+    res.sendStatus(204);
+  })
+  .catch(err => console.log(err))
 })
 
 app.put('/reviews/:review_id/reported', (req, res) => {
-  const reviewId = req.params.review_id;
-  console.log(reviewId)
-  res.status(204).send('received');
+  putReport(req.params.review_id)
+  .then(() => {
+    res.sendStatus(204)
+  })
+  .catch(err => console.log(err));
 })
 
 module.exports = {

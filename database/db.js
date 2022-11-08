@@ -2,6 +2,9 @@ const path = require('path');
 require('dotenv').config({
   path: path.resolve(__dirname, '../.env')
 });
+
+
+
 // const {Sequelize} = require('sequelize');
 
 // const sequelize = new Sequelize('sdc', 'postgres', null, {
@@ -19,9 +22,9 @@ const config = {
   user: process.env.PGUSER,
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  max: 100,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 0,
 };
 
 const pool = new Pool(config)
