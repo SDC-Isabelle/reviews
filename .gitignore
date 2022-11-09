@@ -25,5 +25,3 @@ build/
 dist/
 
 .env
-
-sdc-api.pem
