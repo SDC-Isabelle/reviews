@@ -97,7 +97,9 @@ const getMeta = (productId) => {
                                 `
 
                   )
-                  .then(data => data.rows)
+                  .then(data => {
+                    client.release();
+                    return data.rows;})
                   .catch(err => console.log(err));
          })
          .catch(err => console.log(err));
