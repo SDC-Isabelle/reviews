@@ -25,7 +25,7 @@ app.get('/reviews', (req, res) => {
   };
 
   const product_id = parseInt(req.query.product_id);
-  console.log('GETTING FROM DB')
+  console.log('GETTING REVIEWS FROM DB');
   getReviews(product_id, response.page, response.count, response.sort)
   .then(data => {
     //console.log('DATA ', data);
@@ -50,10 +50,12 @@ app.get('/reviews', (req, res) => {
 
 app.get('/reviews/meta', (req, res) => {
  // console.log(req.query);
+ console.log('GETTING META FROM DB');
   getMeta(parseInt(req.query.product_id))
   .then(data => {
-    console.log(data);
+    //console.log(data);
     res.status(200).send(data[0].meta);
+    console.log('SENT RESPONSE TO CLIENT');
   })
 
 })
