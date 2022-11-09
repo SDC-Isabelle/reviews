@@ -3,18 +3,6 @@ require('dotenv').config({
   path: path.resolve(__dirname, '../.env')
 });
 
-
-
-// const {Sequelize} = require('sequelize');
-
-// const sequelize = new Sequelize('sdc', 'postgres', null, {
-//   host: 'localhost',
-//   dialect: 'postgres'
-// });
-
-// sequelize.authenticate().then(() => console.log('yes')).catch(err => console.log(err));
-
-
 const {Pool, Client} = require('pg');
 
 const config = {
@@ -22,13 +10,14 @@ const config = {
   user: process.env.PGUSER,
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
+  password: process.env.PGPASSWORD,
   max: 100,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 0,
 };
 
 const pool = new Pool(config)
-
+console.log("PG POOL CREATED")
 module.exports = {
   pool,
 }

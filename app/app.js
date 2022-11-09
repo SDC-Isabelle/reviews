@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '..')));
 app.use(express.json());
 app.use((req, res, next) => {
-  //console.log('RECEIVED ', req.method);
+  console.log('API MIDDLEWARE RECEIVED ', req.method);
   next();
 });
 
@@ -22,7 +22,7 @@ app.get('/reviews', (req, res) => {
   };
 
   const product_id = parseInt(req.query.product_id);
-
+  console.log('GETTING FROM DB')
   getReviews(product_id, response.page, response.count, response.sort)
   .then(data => {
     //console.log('DATA ', data);
@@ -36,6 +36,7 @@ app.get('/reviews', (req, res) => {
    // console.log(response.results);
     //delete response.results['json_agg'];
     res.status(200).send(response);
+    console.log('SENT RESPONSE TO CLIENT')
   })
   .catch(err => {
     console.log(err)
