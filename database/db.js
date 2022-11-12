@@ -11,7 +11,7 @@ const config = {
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
   password: process.env.PGPASSWORD,
-  max: 100,
+  max: 1000,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 0,
 };

@@ -6,7 +6,7 @@ const {pool} = require('./db.js')
 //   pool.end()
 // })
 
-const getReviews = (productId, page, count, sort) => {
+const getReviews = (productId, offset, count, sort) => {
   return pool.connect()
     .then(client => {
       return client.query(`SELECT reviews.review_id,
@@ -26,7 +26,10 @@ const getReviews = (productId, page, count, sort) => {
                           JOIN reviews_photos
                           ON reviews.review_id = reviews_photos.review_id
                           WHERE product_id = ${productId}
-                          GROUP BY reviews.review_id`)
+                          GROUP BY reviews.review_id
+                          ORDER BY reviews.${sort} DESC
+                          LIMIT ${count} OFFSET ${offset}
+                          `)
                    .then(res => {
                       client.release();
                       return res.rows;

@@ -24,9 +24,18 @@ app.get('/reviews', (req, res) => {
     "count": parseInt(req.query.count) || 5
   };
 
-  const product_id = parseInt(req.query.product_id);
   console.log('GETTING REVIEWS FROM DB');
-  getReviews(product_id, response.page, response.count, response.sort)
+  const offset = (response.page - 1) * response.count;
+  // sort "NEWEST, HELPFUL AND RELEVANT";
+  let sort = null;
+  if (req.query.sort === 'newest') {
+    sort = 'date';
+  } else if (req.query.sort == 'helpful') {
+    sort = 'helpfulness';
+  } else {
+    sort = 'date';
+  }
+  getReviews(parseInt(req.query.product_id), offset, response.count, sort)
   .then(data => {
     //console.log('DATA ', data);
     response.results = data;
